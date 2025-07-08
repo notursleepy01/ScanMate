@@ -1,0 +1,76 @@
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.atom/
+.buildlog/
+.history
+.svn/
+migrate_working_dir/
+
+# IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.pub-cache/
+.pub/
+/build/
+
+# Symbolication related
+app.*.symbols
+
+# Obfuscation related
+app.*.map.json
+
+# Android Studio will place build artifacts here
+/android/app/debug/
+/android/app/profile/
+/android/app/release/
+
+# More Flutter specific ignores
+.packages
+*.lock # Usually pubspec.lock is committed for apps, but sometimes ignored in specific workflows. For now, let's ensure it's not the cause.
+# If issues persist, we might need to be more specific about what build_runner is generating outside lib/
+
+# Generated plugin registrant files (though typically inside platform folders that might be covered by broader rules)
+# These are often more specific if top-level platform folders are not fully ignored.
+# **/ios/Flutter/GeneratedPluginRegistrant.* # Covered by .flutter-plugins-dependencies now
+# **/android/app/src/main/java/**/GeneratedPluginRegistrant.java # Covered
+# **/android/app/src/main/kotlin/**/GeneratedPluginRegistrant.kt # Covered
+# **/linux/flutter/generated_plugin_registrant.h # Covered
+# **/linux/flutter/generated_plugin_registrant.cc # Covered
+# **/macos/Flutter/GeneratedPluginRegistrant.h # Covered
+# **/macos/Flutter/GeneratedPluginRegistrant.m # Covered
+# **/windows/flutter/generated_plugin_registrant.h # Covered
+# **/windows/flutter/generated_plugin_registrant.cc # Covered
+# **/web/flutter_bootstrap.js # For older versions
+
+# IDE files (already mostly covered)
+.idea/
+*.iml
+*.vscode/
+
+# Build artifacts (already mostly covered)
+appbundle/
+apk/
+ios/ipa/
+
+# Flutter Test specific files
+coverage/
+test_coverage.json
+test_output.json

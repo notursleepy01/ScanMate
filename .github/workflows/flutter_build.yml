@@ -1,0 +1,87 @@
+name: Flutter CI Build ScanMate
+
+on:
+  push:
+    branches: [ "main", "master" ] # Adjust branches as needed
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  build_android:
+    name: Build ScanMate Android APK
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin' # Temurin (formerly AdoptOpenJDK) is a good choice
+          java-version: '17'     # Or '11', check compatibility with your Gradle version
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2 # A community-maintained action
+        with:
+          flutter-version: '3.22.2' # Match the version used in development
+          channel: 'stable'
+          cache: true # Enable caching for faster builds
+
+      - name: Navigate to project directory
+        run: cd scanmate
+
+      - name: Get Flutter dependencies
+        working-directory: ./scanmate
+        run: flutter pub get
+
+      # Run build_runner for Hive code generation
+      # This is crucial and was problematic in the local sandbox.
+      # CI environment might handle it better.
+      - name: Generate Hive TypeAdapters
+        working-directory: ./scanmate
+        run: flutter pub run build_runner build --delete-conflicting-outputs
+
+      - name: Analyze project source
+        working-directory: ./scanmate
+        run: flutter analyze
+
+      - name: Build APK (Release)
+        working-directory: ./scanmate
+        run: flutter build apk --release --verbose
+        # Added --verbose for more detailed logs if build fails
+
+      - name: Upload APK Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: scanmate-release-apk
+          path: scanmate/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error # Fail the workflow if the APK is not found
+          retention-days: 7 # Keep artifacts for 7 days
+
+  # Optional: Create a GitHub Release and upload APK there on tag pushes
+  # create_release:
+  #   name: Create GitHub Release
+  #   if: startsWith(github.ref, 'refs/tags/v') # Only run on version tags like v1.0.0
+  #   needs: build_android
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write # Required to create releases and upload assets
+  #   steps:
+  #     - name: Download APK from build job
+  #       uses: actions/download-artifact@v4
+  #       with:
+  #         name: scanmate-release-apk
+  #         path: build/app/outputs/apk/release/
+
+  #     - name: Create Release and Upload APK
+  #       uses: ncipollo/release-action@v1
+  #       with:
+  #         artifacts: "build/app/outputs/apk/release/app-release.apk"
+  #         token: ${{ secrets.GITHUB_TOKEN }}
+  #         tag: ${{ github.ref_name }}
+  #         name: "Release ${{ github.ref_name }}"
+  #         body: "Automated release for ScanMate ${{ github.ref_name }}"
+  #         prerelease: false # Set to true if it's a pre-release
+  #         allowUpdates: true
+  #         artifactErrorsFailBuild: true
