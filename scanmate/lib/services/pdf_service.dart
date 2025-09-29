@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:flutter/services.dart' show ByteData, rootBundle;
+// import 'package:flutter/services.dart' show ByteData, rootBundle; // Removed unused import
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -16,7 +16,7 @@ class PdfService {
       try {
         final imageFile = File(imagePath);
         if (!await imageFile.exists()) {
-          print('Image file not found: $imagePath');
+          debugPrint('Image file not found: $imagePath');
           continue; // Skip if image doesn't exist
         }
         final imageBytes = await imageFile.readAsBytes();
@@ -33,13 +33,13 @@ class PdfService {
           ),
         );
       } catch (e) {
-        print('Error adding image to PDF ($imagePath): $e');
+        debugPrint('Error adding image to PDF ($imagePath): $e');
         // Optionally, add a placeholder page or skip
       }
     }
 
     if (pdf.document.pdfPageList.pages.isEmpty) {
-      print('No pages were added to the PDF. Aborting PDF creation.');
+      debugPrint('No pages were added to the PDF. Aborting PDF creation.');
       return null;
     }
 
@@ -48,10 +48,10 @@ class PdfService {
       final filePath = '${outputDir.path}/$fileName.pdf';
       final file = File(filePath);
       await file.writeAsBytes(await pdf.save());
-      print('PDF saved to: $filePath');
+      debugPrint('PDF saved to: $filePath');
       return filePath;
     } catch (e) {
-      print('Error saving PDF: $e');
+      debugPrint('Error saving PDF: $e');
       return null;
     }
   }

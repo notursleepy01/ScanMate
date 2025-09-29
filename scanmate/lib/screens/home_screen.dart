@@ -95,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final scanMateAppState = ScanMateApp.of(context);
+    final scanMateAppState = _ScanMateAppState.of(context); // Corrected call
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
 
     // Provide FileManagerBloc higher up if needed by multiple direct children of HomeScreen,

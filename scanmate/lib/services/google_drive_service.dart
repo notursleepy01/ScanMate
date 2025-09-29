@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
-import 'package:googleapis_auth/auth_io.dart' as auth;
+// import 'package:googleapis_auth/auth_io.dart' as auth; // Removed unused import
 import 'package:http/http.dart' as http;
 
 // Custom HTTP client that includes the access token in headers
@@ -160,9 +160,13 @@ class GoogleDriveService {
               debugPrint("Could not get/create app folder for upload.");
               return null;
           }
-          driveFile.parents = [effectiveParentId]; // Set parent to appDataFolder subfolder
+          // Only assign parents if effectiveParentId is not null
+          if (effectiveParentId != null) {
+            driveFile.parents = [effectiveParentId];
+          }
       } else {
-          driveFile.parents = [parentFolderId];
+        // If a specific parentFolderId was provided (and it's not null)
+        driveFile.parents = [parentFolderId];
       }
 
 

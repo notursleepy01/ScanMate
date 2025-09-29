@@ -1,7 +1,7 @@
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' show join;
+// import 'package:path_provider/path_provider.dart'; // Removed unused import
+// import 'package:path/path.dart' show join; // Removed unused import
 import 'package:scanmate/screens/crop_screen.dart';
 
 class ScanScreen extends StatefulWidget {
@@ -85,7 +85,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         );
       }
       // Handle error, e.g., show a message to the user
-      print('Error initializing camera: $e');
+      debugPrint('Error initializing camera: $e');
     }
   }
 
@@ -131,7 +131,7 @@ class _ScanScreenState extends State<ScanScreen> with WidgetsBindingObserver {
         });
       }
     } on CameraException catch (e) {
-      print('Error taking picture: $e');
+      debugPrint('Error taking picture: $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error taking picture: ${e.description}')),

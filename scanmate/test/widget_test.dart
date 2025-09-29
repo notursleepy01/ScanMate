@@ -8,23 +8,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:scanmate/main.dart';
+import 'package:scanmate/main.dart'; // This will be ScanMateApp
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
+  testWidgets('HomeScreen displays initial content', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+    // We need to provide the necessary BLoCs if HomeScreen or its children depend on them directly.
+    // For now, StorageService.initHive() is called in main.dart.
+    // FileManagerBloc is provided within DocumentsScreen and HomeScreen.
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    // It's good practice to initialize Hive for tests too if models are involved,
+    // though this basic test might not hit Hive storage directly.
+    // StorageService.initHive(); // Consider a test setup for Hive if needed.
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.pumpWidget(const ScanMateApp());
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    // Verify that HomeScreen shows "Documents" as the initial AppBar title.
+    expect(find.text('Documents'), findsOneWidget);
+
+    // Verify that the "Documents" tab label is present in the BottomNavigationBar/NavigationBar.
+    expect(find.text('Documents'), findsWidgets); // It appears as title and tab label
+
+    // Verify that one of the FABs (e.g., New Scan) is present initially.
+    expect(find.byTooltip('New Scan'), findsOneWidget);
+    expect(find.byTooltip('New Folder'), findsOneWidget);
+
   });
 }

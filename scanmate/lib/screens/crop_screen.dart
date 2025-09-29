@@ -16,7 +16,7 @@ class CropScreen extends StatefulWidget {
 }
 
 class _CropScreenState extends State<CropScreen> {
-  String _currentImagePath; // Path to the image currently being worked on (original, then cropped)
+  late String _currentImagePath; // Path to the image currently being worked on (original, then cropped)
   Uint8List? _displayedImageBytes; // Bytes of the image shown in UI (can be original, cropped, or enhanced)
   String? _finalImagePathToReturn; // Path of the final image (cropped, possibly enhanced) to be returned
 
@@ -48,6 +48,7 @@ class _CropScreenState extends State<CropScreen> {
         _displayedImageBytes = await file.readAsBytes();
       } else {
         debugPrint('Error: Image file not found at $path');
+        if (!mounted) return; // Guard BuildContext
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Error: Image file not found.')),
         );
@@ -55,6 +56,7 @@ class _CropScreenState extends State<CropScreen> {
       }
     } catch (e) {
       debugPrint('Error loading image bytes: $e');
+      if (!mounted) return; // Guard BuildContext
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error loading image: $e')),
       );
@@ -123,7 +125,8 @@ class _CropScreenState extends State<CropScreen> {
       }
     } catch (e) {
       debugPrint('Error cropping image: $e');
-      if (mounted) {
+      if (mounted) { // Guard for setState is fine, need separate for ScaffoldMessenger
+        if (!mounted) return; // Guard BuildContext for ScaffoldMessenger
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Error during crop: ${e.toString()}')),
         );
@@ -151,15 +154,18 @@ class _CropScreenState extends State<CropScreen> {
     }
 
     if (imageToProcessBytes == null) {
+        if (!mounted) return; // Guard BuildContext
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Error: Cropped image data not available for filtering.')));
-        setState(() => _isProcessing = false);
+        if (mounted) { // Guard for setState
+          setState(() => _isProcessing = false);
+        }
         return;
     }
 
     Uint8List? enhancedBytes = await _enhancementService.applyEnhancementToBytes(imageToProcessBytes, type);
 
-    if (enhancedBytes != null && mounted) {
+    if (enhancedBytes != null) { // mounted check will be done before setState
       if (type == EnhancementType.none) {
         // If "Original" (None) is selected, revert to the cropped image without filter
         _finalImagePathToReturn = _currentImagePath;
@@ -174,11 +180,13 @@ class _CropScreenState extends State<CropScreen> {
         _finalImagePathToReturn = tempFilePath; // This is now the image to be saved/passed back
         _displayedImageBytes = enhancedBytes;
       }
-    } else if (mounted) {
+    } else {
+      if (!mounted) return; // Guard BuildContext
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Failed to apply filter.')),
       );
       // Revert to last known good state if filter fails
+      if(mounted) { // Guard for setState
       _currentEnhancement = EnhancementType.none; // Or previous enhancement
       _finalImagePathToReturn = _currentImagePath;
       _displayedImageBytes = await File(_currentImagePath).readAsBytes();

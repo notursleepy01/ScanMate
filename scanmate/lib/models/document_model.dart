@@ -1,10 +1,9 @@
 import 'package:hive/hive.dart';
-import 'package:equatable/equatable.dart';
 
 part 'document_model.g.dart'; // Hive generator will create this
 
 @HiveType(typeId: 0)
-class DocumentModel extends HiveObject with EquatableMixin {
+class DocumentModel extends HiveObject {
   @HiveField(0)
   final String id; // Unique ID for the document
 
@@ -40,6 +39,6 @@ class DocumentModel extends HiveObject with EquatableMixin {
     this.extractedText = '',
   });
 
-  @override
-  List<Object?> get props => [id, title, imagePaths, pdfPath, createdAt, updatedAt, folderId, extractedText];
+  // Equatable props removed as EquatableMixin was removed.
+  // Equality will be by reference or by ID if checked explicitly.
 }

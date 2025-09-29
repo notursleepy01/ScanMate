@@ -1,10 +1,9 @@
 import 'package:hive/hive.dart';
-import 'package:equatable/equatable.dart';
 
 part 'folder_model.g.dart'; // Hive generator will create this
 
 @HiveType(typeId: 1)
-class FolderModel extends HiveObject with EquatableMixin {
+class FolderModel extends HiveObject {
   @HiveField(0)
   final String id; // Unique ID for the folder
 
@@ -28,6 +27,6 @@ class FolderModel extends HiveObject with EquatableMixin {
     this.parentFolderId,
   });
 
-  @override
-  List<Object?> get props => [id, name, createdAt, updatedAt, parentFolderId];
+  // Equatable props removed as EquatableMixin was removed.
+  // Equality will be by reference or by ID if checked explicitly.
 }

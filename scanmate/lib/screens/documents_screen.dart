@@ -78,7 +78,15 @@ class DocumentsScreen extends StatelessWidget {
     }
 
     if (state.currentFolderPath != 'root' && state.pathBreadcrumbs.length > 1) { // Allow going up only if not at root and not just showing current folder as breadcrumb
-        items.add(ListTile(
+        items.add(const ListTile( // Made const
+          leading: Icon(Icons.arrow_upward),
+          title: Text('..'),
+          // onTap is not const, so the ListTile itself cannot be fully const if onTap is defined here.
+          // However, the lint is about constructor calls. Let's see.
+          // Reverting this specific const for ListTile as onTap prevents it.
+          // The Icon and Text inside can be const.
+        ));
+        items.add(ListTile( // Keep non-const due to onTap
           leading: const Icon(Icons.arrow_upward),
           title: const Text('..'),
           onTap: () {

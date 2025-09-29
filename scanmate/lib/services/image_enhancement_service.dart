@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:image/image.dart' as img; // Renamed to avoid conflict with Flutter's Image widget
+import 'package:image/image.dart' as img; // For most functions under img prefix
+import 'package:image/image.dart'; // For top-level enums like ThresholdMethod
 import 'package:flutter/foundation.dart' show debugPrint;
 
 enum EnhancementType {
@@ -52,7 +53,8 @@ class ImageEnhancementService {
           // The threshold value (128) can be adjusted.
           // For more advanced B&W, adaptive thresholding might be needed.
           processedImage = img.grayscale(image); // First convert to grayscale
-          img.threshold(processedImage, threshold: 128, method: img.ThresholdMethod.binary);
+          // Now use ThresholdMethod directly after the second import
+          img.threshold(processedImage, threshold: 128, method: ThresholdMethod.binary);
           break;
         // Add more cases for other filters here
       }

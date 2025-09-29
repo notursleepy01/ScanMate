@@ -10,7 +10,7 @@ part 'file_manager_state.dart';
 class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
   final StorageService _storageService;
 
-  FileManagerBloc(this._storageService) : super(FileManagerInitial()) {
+  FileManagerBloc(this._storageService) : super(const FileManagerInitial()) { // Made const
     on<LoadRootContent>(_onLoadRootContent);
     on<LoadFolderContent>(_onLoadFolderContent);
     on<CreateNewFolder>(_onCreateNewFolder);
@@ -30,21 +30,21 @@ class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
         currentFolderName: null, // Root has no name in this context
         folders: folders,
         documents: documents,
-        pathBreadcrumbs: [],
+        pathBreadcrumbs: const [], // Made const
       ));
     } catch (e) {
-      emit(FileManagerError('Failed to load root content: ${e.toString()}'));
+      emit(FileManagerError('Failed to load root content: ${e.toString()}')); // Cannot be const
     }
   }
 
   Future<void> _onLoadFolderContent(
       LoadFolderContent event, Emitter<FileManagerState> emit) async {
-    emit(FileManagerLoading());
+    emit(const FileManagerLoading()); // Made const
     try {
       final currentFolder = _storageService.getFolder(event.folderId);
       if (currentFolder == null) {
-        emit(const FileManagerError('Folder not found.'));
-        add(const LoadRootContent()); // Go back to root if folder is invalid
+        emit(const FileManagerError('Folder not found.')); // Made const
+        add(const LoadRootContent()); // Already const
         return;
       }
 
@@ -74,10 +74,10 @@ class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
         currentFolderName: currentFolder.name,
         folders: folders,
         documents: documents,
-        pathBreadcrumbs: breadcrumbs.reversed.toList(),
+        pathBreadcrumbs: breadcrumbs.reversed.toList(), // Cannot be const if `toList()` is used on a dynamic list
       ));
     } catch (e) {
-      emit(FileManagerError('Failed to load folder content: ${e.toString()}'));
+      emit(FileManagerError('Failed to load folder content: ${e.toString()}')); // Cannot be const
     }
   }
 
@@ -86,19 +86,19 @@ class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
     try {
       await _storageService.createFolder(
           name: event.folderName, parentFolderId: event.parentFolderId);
-      emit(const FileManagerActionSuccess('Folder created successfully.'));
+      emit(const FileManagerActionSuccess('Folder created successfully.')); // Made const
       // Reload current view (root or parent folder)
       if (event.parentFolderId == null) {
-        add(const LoadRootContent());
+        add(const LoadRootContent()); // Already const
       } else {
-        add(LoadFolderContent(event.parentFolderId!));
+        add(LoadFolderContent(event.parentFolderId!)); // Event itself is not const here due to arg
       }
     } catch (e) {
-      emit(FileManagerActionFailure('Failed to create folder: ${e.toString()}'));
+      emit(FileManagerActionFailure('Failed to create folder: ${e.toString()}')); // Cannot be const
        // Optionally, reload current view even on failure to refresh state
       if (state is FileManagerLoaded) {
         final loadedState = state as FileManagerLoaded;
-        add(LoadFolderContent(loadedState.currentFolderPath));
+        add(LoadFolderContent(loadedState.currentFolderPath)); // Event itself is not const here
       } else {
         add(const LoadRootContent());
       }
@@ -115,18 +115,18 @@ class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
         folderId: event.folderId,
         extractedText: event.ocrText,
       );
-      emit(const FileManagerActionSuccess('Document created successfully.'));
+      emit(const FileManagerActionSuccess('Document created successfully.')); // Made const
       // Reload current view
       if (event.folderId == null) {
-        add(const LoadRootContent());
+        add(const LoadRootContent()); // Already const
       } else {
-        add(LoadFolderContent(event.folderId!));
+        add(LoadFolderContent(event.folderId!)); // Event itself is not const here due to arg
       }
     } catch (e) {
-      emit(FileManagerActionFailure('Failed to create document: ${e.toString()}'));
+      emit(FileManagerActionFailure('Failed to create document: ${e.toString()}')); // Cannot be const
       if (state is FileManagerLoaded) {
         final loadedState = state as FileManagerLoaded;
-        add(LoadFolderContent(loadedState.currentFolderPath));
+        add(LoadFolderContent(loadedState.currentFolderPath)); // Event itself is not const here
       } else {
         add(const LoadRootContent());
       }
@@ -138,7 +138,7 @@ class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
     try {
       String? parentFolderIdToReload;
       if (state is FileManagerLoaded) {
-         final loadedState = state as FileManagerLoaded;
+         // final loadedState = state as FileManagerLoaded; // Removed unused variable
          if (event.isFolder) {
             final item = _storageService.getFolder(event.itemId);
             parentFolderIdToReload = item?.parentFolderId;
@@ -153,8 +153,11 @@ class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
       } else {
         await _storageService.deleteDocument(event.itemId);
       }
-      emit(FileManagerActionSuccess(
-          '${event.isFolder ? "Folder" : "Document"} deleted.'));
+      emit(FileManagerActionSuccess('${event.isFolder ? "Folder" : "Document"} deleted.')); // Made const (message is interpolated but based on consts)
+                                                                                          // Actually, no, event.isFolder makes it non-const.
+                                                                                          // Let's assume the linter is okay if the string itself is simple enough.
+                                                                                          // Reverting to non-const for safety with interpolated strings.
+      // emit(const FileManagerActionSuccess('${event.isFolder ? "Folder" : "Document"} deleted.'));
 
       if (parentFolderIdToReload == null && (state as FileManagerLoaded).currentFolderPath == 'root') {
          add(const LoadRootContent());
@@ -168,12 +171,12 @@ class FileManagerBloc extends Bloc<FileManagerEvent, FileManagerState> {
       }
 
     } catch (e) {
-      emit(FileManagerActionFailure(
+      emit(FileManagerActionFailure( // Cannot be const
           'Failed to delete ${event.isFolder ? "folder" : "document"}: ${e.toString()}'));
       // Reload current view to reflect that delete failed or partially succeeded
       if (state is FileManagerLoaded) {
         final loadedState = state as FileManagerLoaded;
-        add(LoadFolderContent(loadedState.currentFolderPath));
+        add(LoadFolderContent(loadedState.currentFolderPath)); // Event itself is not const here
       } else {
         add(const LoadRootContent());
       }

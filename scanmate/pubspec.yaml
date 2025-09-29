@@ -48,6 +48,9 @@ dependencies:
   google_sign_in: ^6.0.0 # Recheck latest
   googleapis: ^13.0.0 # Recheck latest for drive
   googleapis_auth: ^1.4.0 # Recheck latest for auth http client
+  path: ^1.9.0 # For path manipulation
+  http: ^1.2.1 # For HTTP requests (used by GoogleDriveService)
+  uuid: ^4.4.0 # For generating unique IDs
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
